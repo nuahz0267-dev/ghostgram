@@ -11,10 +11,16 @@ jobs:
     runs-on: macos-14
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
-          fetch-depth: '0'
+          fetch-depth: 0
+
+      - name: Fix and sync submodules
+        run: |
+          sed -i '' 's|\.\./\.\.|https://github.com/TelegramMessenger|g' .gitmodules || sed -i 's|\.\./\.\.|https://github.com/TelegramMessenger|g' .gitmodules
+          git submodule sync --recursive
+          git submodule update --init --recursive
 
       - name: Set active Xcode path
         run: |
