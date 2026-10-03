@@ -18,7 +18,8 @@ jobs:
 
       - name: Fix and sync submodules
         run: |
-          sed -i '' 's|\.\./\.\.|https://github.com/TelegramMessenger|g' .gitmodules || sed -i 's|\.\./\.\.|https://github.com/TelegramMessenger|g' .gitmodules
+          git config --file=.gitmodules submodule.submodules/TgVoipWebrtc/tgcalls.url "https://github.com/TelegramMessenger/tgcalls.git"
+          git config --file=.gitmodules submodule.submodules/rlottie/rlottie.url "https://github.com/TelegramMessenger/rlottie.git"
           git submodule sync --recursive
           git submodule update --init --recursive
 
@@ -38,10 +39,7 @@ jobs:
         run: |
           set -x
 
-          # source code paths are included in the final binary, so we need to make them stable across builds
           SOURCE_DIR=/Users/Shared/telegram-ios
-
-          # use canonical bazel root
           BAZEL_USER_ROOT="/private/var/tmp/_bazel_containerhost"
 
           cd $SOURCE_DIR
@@ -64,7 +62,6 @@ jobs:
             --configuration=release_arm64 \
             --buildNumber="$BUILD_NUMBER"
 
-          # collect ipa
           OUTPUT_PATH="build/artifacts"
           rm -rf "$OUTPUT_PATH"
           mkdir -p "$OUTPUT_PATH"
@@ -72,7 +69,6 @@ jobs:
             cp "$f" $OUTPUT_PATH/
           done
 
-          # collect dsym
           mkdir -p build/DSYMs
           for f in bazel-out/applebin_ios-ios_arm*-opt-ST-*/bin/Telegram/*.dSYM; do
             cp -R "$f" build/DSYMs/
